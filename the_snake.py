@@ -61,7 +61,7 @@ class GameObject:
     """Игровое поле"""
 
     snake_place: list = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
-    taken_place: list = []
+    taken_place: list[tuple] = []
 
     def __init__(self):
         self.position = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
@@ -70,7 +70,8 @@ class GameObject:
         self.object = None
 
     def replenish_taken_place(self, new_coordinates: tuple) -> None:
-        """Добавляем новые координаты элементов (кроме тела змейки) в taken_place. В случае поражения обнуляем taken_place"""
+        """Добавляем новые координаты элементов (кроме тела змейки) \
+        в taken_place. В случае поражения обнуляем taken_place"""
         if new_coordinates:
             GameObject.taken_place.append(new_coordinates)
         else:
@@ -81,6 +82,7 @@ class GameObject:
         pass
 
     def random_selection(self):
+        """Шаблон для подклассов"""
         pass
 
     def reset(self):
@@ -98,11 +100,15 @@ class Apple(GameObject):
         self.position = self.randomize_position()
 
     def randomize_position(self) -> tuple:
-        """Генерируем новое яблоко и добавляем координаты яблока в taken_place"""
-        new_apple = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+        """Генерируем новое яблоко и добавляем координаты яблока \
+        в taken_place"""
+        new_apple = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                     randrange(0, SCREEN_HEIGHT, GRID_SIZE))
 
-        while new_apple in GameObject.snake_place or new_apple in GameObject.taken_place:
-            new_apple = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+        while new_apple in GameObject.snake_place \
+                or new_apple in GameObject.taken_place:
+            new_apple = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                         randrange(0, SCREEN_HEIGHT, GRID_SIZE))
 
         self.replenish_taken_place(new_apple)
 
@@ -147,7 +153,8 @@ class Snake(GameObject):
     def move(self) -> None:
         """Передвижение змейки и добавление координатов змеи в snake_place"""
         x, y = self.get_head_position()
-        new_head = ((x + (self.direction[0] * GRID_SIZE)) % SCREEN_WIDTH, (y + (self.direction[1] * GRID_SIZE)) % SCREEN_HEIGHT)
+        new_head = ((x + (self.direction[0] * GRID_SIZE)) % SCREEN_WIDTH,
+                    (y + (self.direction[1] * GRID_SIZE)) % SCREEN_HEIGHT)
         self.positions.insert(0, new_head)
         self.last = self.positions[-1]
 
@@ -165,6 +172,28 @@ class Snake(GameObject):
         if self.next_direction:
             self.direction = self.next_direction
             self.next_direction = None
+
+    def change_speed(self) -> int:
+        """Меняет скорость змейки"""
+        speed = 5
+        if 0 < self.length < 4:
+            speed = 5
+        elif 3 < self.length < 7:
+            speed = 7
+        elif 6 < self.length < 11:
+            speed = 9
+        elif 10 < self.length < 16:
+            speed = 14
+        elif 15 < self.length < 21:
+            self.body_color = SNAKE_COLOR
+            speed = 17
+        elif 20 < self.length < 31:
+            self.body_color = EPIC_SNAKE_COLOR
+            speed = 22
+        elif 30 < self.length:
+            self.body_color = MYTHICAL_SNAKE_COLOR
+            speed = 25
+        return speed
 
     def reset(self) -> None:
         """Возвращение змейки в исходное состояние"""
@@ -186,11 +215,13 @@ class Stone(GameObject):
 
     def randomize_position(self) -> list[tuple]:
         """Генерируем камни и добавляем координаты камней в taken_place"""
-        new_list = []
+        new_list: list[tuple] = []
         for _ in range(3):
-            new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+            new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                         randrange(0, SCREEN_HEIGHT, GRID_SIZE))
             while new_place in GameObject.snake_place:
-                new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+                new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                             randrange(0, SCREEN_HEIGHT, GRID_SIZE))
 
             new_list.insert(0, new_place)
 
@@ -215,10 +246,14 @@ class Rotten(GameObject):
         self.body_color = ROTTEN_APPLE
 
     def randomize_position(self) -> list[tuple]:
-        """Генерируем гнилое яблоко и добавляем координаты гнилого яблока в taken_place"""
-        new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
-        while new_place in GameObject.taken_place or new_place in GameObject.snake_place:
-            new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+        """Генерируем гнилое яблоко и добавляем координаты гнилого яблока \
+        в taken_place"""
+        new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                     randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+        while new_place in GameObject.taken_place \
+                or new_place in GameObject.snake_place:
+            new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                         randrange(0, SCREEN_HEIGHT, GRID_SIZE))
         self.position.append(new_place)
         self.replenish_taken_place(new_place)
         self.rendering = new_place
@@ -246,9 +281,12 @@ class Poison(GameObject):
 
     def randomize_position(self) -> list[tuple]:
         """Генерируем яд и добавляем координаты яда в taken_place"""
-        new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
-        while new_place in GameObject.taken_place or new_place in GameObject.snake_place:
-            new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+        new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                     randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+        while new_place in GameObject.taken_place \
+                or new_place in GameObject.snake_place:
+            new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                         randrange(0, SCREEN_HEIGHT, GRID_SIZE))
         self.position.append(new_place)
         self.replenish_taken_place(new_place)
         self.rendering = new_place
@@ -276,10 +314,14 @@ class Coin(GameObject):
         self.body_color = GOLDEN_COIN
 
     def randomize_position(self) -> list[tuple]:
-        """Генерируем золотую монету и добавляем координаты золотой монеты в taken_place"""
-        new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
-        while new_place in GameObject.taken_place or new_place in GameObject.snake_place:
-            new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+        """Генерируем золотую монету и добавляем координаты золотой монеты \
+        в taken_place"""
+        new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                     randrange(0, SCREEN_HEIGHT, GRID_SIZE))
+        while new_place in GameObject.taken_place \
+                or new_place in GameObject.snake_place:
+            new_place = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
+                         randrange(0, SCREEN_HEIGHT, GRID_SIZE))
         self.position.append(new_place)
         self.replenish_taken_place(new_place)
         self.rendering = new_place
@@ -292,7 +334,7 @@ class Coin(GameObject):
         pygame.draw.rect(screen, self.body_color, rect)
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
-    def random_selection(self, is_bool) -> None:
+    def random_selection(self, is_bool=None) -> None:
         """Лотерея"""
         if is_bool:
             if randrange(0, 300) == randrange(0, 300):
@@ -320,8 +362,20 @@ def handle_keys(game_object) -> None:
                 game_object.next_direction = RIGHT
 
 
+def random_generator(golden_coin, poison, rotten):
+    """Функция выбирает случайный элемент"""
+    if randrange(0, 30) == randrange(0, 30):
+        golden_coin.random_selection(False)
+    elif randrange(0, 7) == randrange(0, 7):
+        poison.randomize_position()
+        poison.draw()
+    elif randrange(0, 3) == randrange(0, 3):
+        rotten.randomize_position()
+        rotten.draw()
+
+
 def main() -> None:
-    """Main"""
+    """Main - есть Main"""
     global speed
 
     pygame.init()
@@ -352,30 +406,9 @@ def main() -> None:
             snake.length += 1
             apple.position = apple.randomize_position()
 
-            if randrange(0, 30) == randrange(0, 30):
-                golden_coin.random_selection(False)
-            elif randrange(0, 7) == randrange(0, 7):
-                poison.randomize_position()
-                poison.draw()
-            elif randrange(0, 3) == randrange(0, 3):
-                rotten.randomize_position()
-                rotten.draw()
+            random_generator(golden_coin, poison, rotten)
 
-            if 3 < snake.length < 7:
-                speed = 7
-            elif 6 < snake.length < 11:
-                speed = 9
-            elif 10 < snake.length < 16:
-                speed = 14
-            elif 15 < snake.length < 21:
-                speed = 17
-                snake.body_color = SNAKE_COLOR
-            elif 20 < snake.length < 31:
-                speed = 22
-                snake.body_color = EPIC_SNAKE_COLOR
-            elif 30 < snake.length:
-                speed = 25
-                snake.body_color = MYTHICAL_SNAKE_COLOR
+            speed = snake.change_speed()
 
         if snake.positions[0] in snake.positions[1:]:
             snake.reset()
@@ -406,21 +439,7 @@ def main() -> None:
                 snake.length -= 1
                 rotten.draw()
 
-                if 3 < snake.length < 7:
-                    speed = 7
-                elif 6 < snake.length < 11:
-                    speed = 9
-                elif 10 < snake.length < 16:
-                    speed = 14
-                elif 15 < snake.length < 21:
-                    speed = 17
-                    snake.body_color = SNAKE_COLOR
-                elif 20 < snake.length < 31:
-                    speed = 22
-                    snake.body_color = EPIC_SNAKE_COLOR
-                elif 30 < snake.length:
-                    speed = 25
-                    snake.body_color = MYTHICAL_SNAKE_COLOR
+                speed = snake.change_speed()
             else:
                 snake.reset()
                 rotten.reset()
@@ -441,21 +460,7 @@ def main() -> None:
                 snake.length -= 3
                 poison.draw()
 
-                if 3 < snake.length < 7:
-                    speed = 7
-                elif 6 < snake.length < 11:
-                    speed = 9
-                elif 10 < snake.length < 16:
-                    speed = 14
-                elif 15 < snake.length < 21:
-                    speed = 17
-                    snake.body_color = SNAKE_COLOR
-                elif 20 < snake.length < 31:
-                    speed = 22
-                    snake.body_color = EPIC_SNAKE_COLOR
-                elif 30 < snake.length:
-                    speed = 25
-                    snake.body_color = MYTHICAL_SNAKE_COLOR
+                speed = snake.change_speed()
 
             else:
                 snake.reset()
@@ -473,21 +478,7 @@ def main() -> None:
             digit = randrange(1, 10)
             snake.length += digit
 
-            if 3 < snake.length < 7:
-                speed = 7
-            elif 6 < snake.length < 11:
-                speed = 9
-            elif 10 < snake.length < 16:
-                speed = 14
-            elif 15 < snake.length < 21:
-                speed = 17
-                snake.body_color = SNAKE_COLOR
-            elif 20 < snake.length < 31:
-                speed = 22
-                snake.body_color = EPIC_SNAKE_COLOR
-            elif 30 < snake.length:
-                speed = 25
-                snake.body_color = MYTHICAL_SNAKE_COLOR
+            speed = snake.change_speed()
 
         pygame.display.update()
 
