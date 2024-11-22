@@ -48,6 +48,8 @@ class GameObject:
         """Инициализирует объект на игровом поле."""
         self.positions = [((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))]
         self.body_color = None
+        # Для тестов:
+        self.position = self.positions
 
     def draw(self) -> None:
         """Шаблон для подклассов."""
@@ -61,15 +63,18 @@ class GameObject:
 class Apple(GameObject):
     """Яблоко."""
 
-    def __init__(self, positions):
+    def __init__(self, take=(2, 20)):
         """Инициализирует яблоко на игровом поле."""
         super().__init__()
-        self.taken = positions
+        self.taken = take
         self.body_color = APPLE_COLOR
         self.randomize_position()
+        # Для тестов:
+        self.position = self.positions
 
     def randomize_position(self) -> None:
         """Генерируем новое яблоко."""
+        print(self.taken)
         new_apple = (randrange(0, SCREEN_WIDTH, GRID_SIZE),
                      randrange(0, SCREEN_HEIGHT, GRID_SIZE))
         while new_apple in self.taken:
@@ -96,6 +101,8 @@ class Snake(GameObject):
         self.direction = RIGHT
         self.next_direction = None
         self.last = None
+        # Для тестов:
+        self.position = self.positions
 
     def draw(self) -> None:
         """Рисуем змейку на поле."""
