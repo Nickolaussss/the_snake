@@ -38,7 +38,7 @@ SPEED = 10
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 
 # Заголовок окна игрового поля:
-pg.display.set_caption("Супер Змейка")
+pg.display.set_caption('Супер Змейка')
 
 # Настройка времени:
 clock = pg.time.Clock()
@@ -47,7 +47,7 @@ clock = pg.time.Clock()
 class GameObject:
     """Отрисовывает игровое поле."""
 
-    def __init__(self, body_color=None, position=CENTRAL_POSITION):
+    def __init__(self, body_color=None, position=CENTRAL_POSITION) -> None:
         """Инициализирует объект на игровом поле."""
         self.position = position
         self.body_color = body_color
@@ -56,7 +56,7 @@ class GameObject:
         """Шаблон для подклассов."""
         raise NotImplementedError('Метод draw ещё не реализован')
 
-    def draw_cell(self, position, body_color):
+    def draw_cell(self, position, body_color) -> None:
         """Отрисовывает ячейки"""
         rect = pg.Rect(position, (GRID_SIZE, GRID_SIZE))
         pg.draw.rect(screen, body_color, rect)
@@ -66,11 +66,11 @@ class GameObject:
 class Apple(GameObject):
     """Яблоко."""
 
-    def __init__(self, body_color=APPLE_COLOR):
+    def __init__(self, body_color=APPLE_COLOR) -> None:
         """Инициализирует яблоко на игровом поле."""
         super().__init__(body_color)
 
-    def randomize_position(self, positions=CENTRAL_POSITION):
+    def randomize_position(self, positions=CENTRAL_POSITION) -> None:
         """Генерируем новое яблоко."""
         while True:
             new_apple = (
@@ -88,7 +88,7 @@ class Apple(GameObject):
 class Snake(GameObject):
     """Змейка."""
 
-    def __init__(self, body_color=SNAKE_COLOR):
+    def __init__(self, body_color=SNAKE_COLOR) -> None:
         """Инициализирует змейку на игровом поле."""
         super().__init__(body_color)
         self.reset()
@@ -98,7 +98,7 @@ class Snake(GameObject):
         for position in self.positions:
             self.draw_cell(position, self.body_color)
 
-    def move(self):
+    def move(self) -> None:
         """Передвижение змейки."""
         head_x, head_y = self.get_head_position()
         coordinate_x, coordinate_y = self.direction
@@ -115,7 +115,7 @@ class Snake(GameObject):
         """Берем координаты головы змейки."""
         return self.positions[0]
 
-    def delete_last(self):
+    def delete_last(self) -> None:
         """Избавление от ненужных элементов змеи."""
         if len(self.positions) > self.length:
             self.positions.pop()
@@ -126,7 +126,7 @@ class Snake(GameObject):
             self.direction = self.next_direction
             self.next_direction = None
 
-    def reset(self):
+    def reset(self) -> None:
         """Возвращение змейки в исходное состояние."""
         self.direction = choice([UP, RIGHT, DOWN, LEFT])
         self.length = 1
@@ -134,7 +134,7 @@ class Snake(GameObject):
         self.positions = [self.position]
 
 
-def handle_keys(game_object):
+def handle_keys(game_object) -> None:
     """Регулировка направления движения змейки и функция выхода."""
     for event in pg.event.get():
         if event.type == pg.QUIT:
