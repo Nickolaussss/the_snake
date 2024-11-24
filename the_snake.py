@@ -151,7 +151,7 @@ def handle_keys(game_object) -> None:
                 game_object.next_direction = RIGHT
 
 
-def main():
+def main() -> None:
     """Main - есть Main."""
     pg.init()
 
